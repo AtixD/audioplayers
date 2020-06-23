@@ -145,6 +145,9 @@ public class WrappedMediaPlayer extends Player implements MediaPlayer.OnPrepared
 
     @Override
     int getDuration() {
+        if(this.player == null) {
+            return 0;
+        }
         return this.player.getDuration();
     }
 
