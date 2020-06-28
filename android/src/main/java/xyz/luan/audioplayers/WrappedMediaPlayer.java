@@ -246,12 +246,16 @@ public class WrappedMediaPlayer extends Player implements MediaPlayer.OnPrepared
     @Override
     public void onPrepared(final MediaPlayer mediaPlayer) {
         this.prepared = true;
-        ref.handleDuration(this);
-        if (this.playing) {
-            this.player.start();
-            ref.handleIsPlaying(this);
+        if(ref != null) {
+            ref.handleDuration(this);
         }
-        if (this.shouldSeekTo >= 0) {
+        if (this.playing && this.player != null) {
+            this.player.start();
+            if(ref != null) {
+                ref.handleIsPlaying(this);
+            }
+        }
+        if (this.shouldSeekTo >= 0 && this.player != null) {
             this.player.seekTo(this.shouldSeekTo);
             this.shouldSeekTo = -1;
         }
