@@ -242,8 +242,14 @@ const NSString *_defaultPlayingRoute = @"speakers";
                 @"setPlaybackRate":
                   ^{
                     NSLog(@"setPlaybackRate");
-                    float playbackRate = (float)[call.arguments[@"playbackRate"] doubleValue];
-                    [self setPlaybackRate:playbackRate playerId:playerId];
+                    @try {
+                      float playbackRate = (float)[call.arguments[@"playbackRate"] doubleValue];
+                      [self setPlaybackRate:playbackRate playerId:playerId];
+                    }
+                    @catch (NSException *exception) {
+                    }
+                    @finally {
+                    }
                   },
                 @"setNotification":
                   ^{
@@ -543,26 +549,32 @@ const NSString *_defaultPlayingRoute = @"speakers";
         time: (CMTime) time
       isNotification: (bool) respectSilence
 {
-  [ self setUrl:url
-         isLocal:isLocal
-         isNotification:respectSilence
-         playerId:playerId
-         onReady:^(NSString * playerId) {
-           NSMutableDictionary * playerInfo = players[playerId];
-           AVPlayer *player = playerInfo[@"player"];
-           [ player setVolume:volume ];
-           [ player seekToTime:time ];
+  @try {
+    [ self setUrl:url
+          isLocal:isLocal
+          isNotification:respectSilence
+          playerId:playerId
+          onReady:^(NSString * playerId) {
+            NSMutableDictionary * playerInfo = players[playerId];
+            AVPlayer *player = playerInfo[@"player"];
+            [ player setVolume:volume ];
+            [ player seekToTime:time ];
 
-           if (@available(iOS 10.0, *)) {
-             float playbackRate = [playerInfo[@"rate"] floatValue];
-             [player playImmediatelyAtRate:playbackRate];
-           } else {
-             [player play];
-           }
+            if (@available(iOS 10.0, *)) {
+              float playbackRate = [playerInfo[@"rate"] floatValue];
+              [player playImmediatelyAtRate:playbackRate];
+            } else {
+              [player play];
+            }
 
-           [ playerInfo setObject:@true forKey:@"isPlaying" ];
-         }
-  ];
+            [ playerInfo setObject:@true forKey:@"isPlaying" ];
+          }
+    ];
+  }
+  @catch (NSException *exception) {
+  }
+  @finally {
+  }
   #if TARGET_OS_IPHONE
     _currentPlayerId = playerId; // to be used for notifications command center
   #endif
